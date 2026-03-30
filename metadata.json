@@ -1,0 +1,7 @@
+{
+  "name": "Viola Quality Academy",
+  "description": "A modern CBC-aligned school promoting excellence, creativity, and holistic development in Kenya.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

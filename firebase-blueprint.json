@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "Admission": {
+      "title": "Admission Application",
+      "description": "Student admission application details",
+      "type": "object",
+      "properties": {
+        "studentName": { "type": "string" },
+        "parentName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "grade": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "reviewed", "accepted", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["studentName", "parentName", "email", "phone", "grade"]
+    },
+    "News": {
+      "title": "School News",
+      "description": "Latest news and updates from the school",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "image": { "type": "string" }
+      },
+      "required": ["title", "content", "date"]
+    },
+    "StudentProgress": {
+      "title": "Student Progress Report",
+      "description": "CBC-aligned progress reports for students",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "grade": { "type": "string" },
+        "term": { "type": "string" },
+        "competencies": {
+          "type": "object",
+          "properties": {
+            "literacy": { "type": "string" },
+            "numeracy": { "type": "string" },
+            "creativity": { "type": "string" },
+            "collaboration": { "type": "string" }
+          }
+        },
+        "teacherComments": { "type": "string" }
+      },
+      "required": ["studentId", "grade", "term"]
+    }
+  },
+  "firestore": {
+    "/admissions/{admissionId}": {
+      "schema": "Admission",
+      "description": "Collection of admission applications"
+    },
+    "/news/{newsId}": {
+      "schema": "News",
+      "description": "Collection of school news articles"
+    },
+    "/progress/{progressId}": {
+      "schema": "StudentProgress",
+      "description": "Collection of student progress reports"
+    }
+  }
+}
