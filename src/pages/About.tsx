@@ -76,6 +76,47 @@ export function About() {
         </div>
       </section>
 
+      {/* Leadership */}
+      <section className="bg-stone-50 py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-20 text-center">
+            <span className="mb-4 inline-block text-xs font-bold uppercase tracking-widest text-stone-400">Our Leadership</span>
+            <h2 className="text-4xl font-bold tracking-tight text-stone-900 sm:text-6xl">Meet the Visionaries</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-stone-600">
+              Dedicated professionals committed to providing the best educational experience for your child.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { name: 'Dr. Viola Maina', role: 'Founder & Director', bio: 'With over 20 years in education, Dr. Viola is passionate about holistic child development.', image: 'https://i.pravatar.cc/300?u=viola' },
+              { name: 'Mr. James Kamau', role: 'Head Teacher', bio: 'An expert in CBC implementation and student mentorship.', image: 'https://i.pravatar.cc/300?u=james' },
+              { name: 'Ms. Sarah Omari', role: 'Director of Academics', bio: 'Dedicated to curriculum excellence and teacher professional growth.', image: 'https://i.pravatar.cc/300?u=sarah' },
+            ].map((member, i) => (
+              <motion.div
+                key={member.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group relative overflow-hidden rounded-[2.5rem] bg-white p-8 shadow-sm transition-all hover:shadow-xl"
+              >
+                <div className="mb-8 aspect-square overflow-hidden rounded-3xl">
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold text-stone-900">{member.name}</h3>
+                <p className="mb-4 text-sm font-bold uppercase tracking-widest text-stone-400">{member.role}</p>
+                <p className="text-stone-600 leading-relaxed">{member.bio}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Core Values */}
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

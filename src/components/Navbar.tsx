@@ -1,18 +1,36 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, GraduationCap } from 'lucide-react';
+import { Menu, X, GraduationCap, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, db } from '../lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export function Navbar() {
+  const [user] = useAuthState(auth);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    if (!user) {
+      setUserProfile(null);
+      return;
+    }
+    const unsub = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+      if (doc.exists()) {
+        setUserProfile(doc.data());
+      }
+    });
+    return () => unsub();
+  }, [user]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,7 +46,9 @@ export function Navbar() {
     { name: 'Academics', path: '/academics' },
     { name: 'Admissions', path: '/admissions' },
     { name: 'Student Life', path: '/student-life' },
+    { name: 'Gallery', path: '/gallery' },
     { name: 'News', path: '/news' },
+    { name: 'Transportation', path: '/transportation' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -63,12 +83,28 @@ export function Navbar() {
                   {link.name}
                 </Link>
               ))}
-              <Link
-                to="/parent-portal"
-                className="rounded-full bg-stone-900 px-5 py-2 text-sm font-medium text-white transition-transform hover:scale-105 active:scale-95"
-              >
-                Parent Portal
-              </Link>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => window.location.href = '/parent-portal?action=pay-fees'}
+                  className="rounded-full border border-stone-200 bg-white px-5 py-2 text-sm font-medium text-stone-900 transition-all hover:bg-stone-50"
+                >
+                  Pay Fees
+                </button>
+                <Link
+                  to="/parent-portal"
+                  className="rounded-full bg-stone-900 px-5 py-2 text-sm font-medium text-white transition-transform hover:scale-105 active:scale-95"
+                >
+                  Parent Portal
+                </Link>
+                {(userProfile?.role === 'teacher' || userProfile?.role === 'admin') && (
+                  <Link
+                    to="/teacher-portal"
+                    className="rounded-full border border-stone-900 bg-stone-900 px-5 py-2 text-sm font-medium text-white transition-transform hover:scale-105 active:scale-95"
+                  >
+                    Teacher Portal
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
 
@@ -114,6 +150,15 @@ export function Navbar() {
               >
                 Parent Portal
               </Link>
+              {(userProfile?.role === 'teacher' || userProfile?.role === 'admin') && (
+                <Link
+                  to="/teacher-portal"
+                  onClick={() => setIsOpen(false)}
+                  className="mt-2 block w-full rounded-full border border-stone-900 bg-stone-900 py-4 text-center text-base font-medium text-white"
+                >
+                  Teacher Portal
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

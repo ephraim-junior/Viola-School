@@ -7,9 +7,12 @@ import { About } from './pages/About';
 import { Academics } from './pages/Academics';
 import { Admissions } from './pages/Admissions';
 import { StudentLife } from './pages/StudentLife';
+import { Gallery } from './pages/Gallery';
 import { News } from './pages/News';
 import { Contact } from './pages/Contact';
 import { ParentPortal } from './pages/ParentPortal';
+import { TeacherPortal } from './pages/TeacherPortal';
+import { Transportation } from './pages/Transportation';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
@@ -25,9 +28,12 @@ export default function App() {
               <Route path="/academics" element={<Academics />} />
               <Route path="/admissions" element={<Admissions />} />
               <Route path="/student-life" element={<StudentLife />} />
+              <Route path="/gallery" element={<Gallery />} />
               <Route path="/news" element={<News />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/parent-portal" element={<ParentPortal />} />
+              <Route path="/teacher-portal" element={<TeacherPortal />} />
+              <Route path="/transportation" element={<Transportation />} />
             </Routes>
           </main>
           <Footer />

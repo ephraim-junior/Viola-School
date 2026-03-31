@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { db } from '../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 
 export function Admissions() {
   const [formData, setFormData] = useState({
@@ -18,8 +19,9 @@ export function Admissions() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('submitting');
+    const path = 'admissions';
     try {
-      await addDoc(collection(db, 'admissions'), {
+      await addDoc(collection(db, path), {
         ...formData,
         status: 'pending',
         createdAt: new Date().toISOString()
@@ -27,7 +29,7 @@ export function Admissions() {
       setStatus('success');
       setFormData({ studentName: '', parentName: '', email: '', phone: '', grade: '', message: '' });
     } catch (error) {
-      console.error('Admission error:', error);
+      handleFirestoreError(error, OperationType.CREATE, path);
       setStatus('error');
     }
   };
@@ -78,9 +80,13 @@ export function Admissions() {
                 <p className="mb-6 text-sm text-stone-600">
                   Our fee structure is competitive and transparent. Download the full prospectus for detailed information on tuition, activities, and transport.
                 </p>
-                <button className="rounded-full bg-stone-900 px-8 py-3 text-sm font-bold text-white transition-transform hover:scale-105 active:scale-95">
+                <a 
+                  href="/prospectus.pdf" 
+                  download 
+                  className="inline-block rounded-full bg-stone-900 px-8 py-3 text-sm font-bold text-white transition-transform hover:scale-105 active:scale-95"
+                >
                   Download Prospectus
-                </button>
+                </a>
               </div>
             </div>
 

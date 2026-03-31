@@ -29,6 +29,7 @@ export function Footer() {
               <li><Link to="/about" className="transition-colors hover:text-white">About Us</Link></li>
               <li><Link to="/academics" className="transition-colors hover:text-white">Academics</Link></li>
               <li><Link to="/admissions" className="transition-colors hover:text-white">Admissions</Link></li>
+              <li><a href="/prospectus.pdf" download className="transition-colors hover:text-white">Download Prospectus</a></li>
               <li><Link to="/student-life" className="transition-colors hover:text-white">Student Life</Link></li>
               <li><Link to="/news" className="transition-colors hover:text-white">News & Updates</Link></li>
             </ul>

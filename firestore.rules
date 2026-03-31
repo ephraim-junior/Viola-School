@@ -1,6 +1,37 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: admissions
+    // Fields:
+    //   - studentName: string (required)
+    //   - parentName: string (required)
+    //   - email: string (required, email format)
+    //   - phone: string (required)
+    //   - grade: string (required)
+    //   - status: string (enum: pending, reviewed, accepted, rejected)
+    //   - createdAt: string (required, date-time)
+    //
+    // Collection: news
+    // Fields:
+    //   - title: string (required)
+    //   - content: string (required)
+    //   - date: timestamp or string (required)
+    //   - image: string (optional)
+    //   - category: string (optional)
+    //
+    // Collection: gallery
+    // Fields:
+    //   - url: string (required)
+    //   - title: string (required)
+    //   - category: string (required, enum: Academics, Sports, Events, Facilities)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
     // Helper functions
     function isAuthenticated() {
       return request.auth != null;
@@ -12,32 +43,128 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-        (request.auth.token.email == "kamauwanyiri54@gmail.com" && request.auth.token.email_verified == true)
+        (request.auth.token.email == "kamauwanyiri54@gmail.com" && request.auth.token.email_verified == true) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
       );
+    }
+
+    function isTeacher() {
+      return isAuthenticated() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher') ||
+        isAdmin()
+      );
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     }
 
     // Admissions
     match /admissions/{admissionId} {
-      allow create: if true; // Allow public applications
+      allow create: if request.resource.data.keys().hasAll(['studentName', 'parentName', 'email', 'phone', 'grade']) &&
+                      request.resource.data.studentName is string &&
+                      request.resource.data.parentName is string &&
+                      isValidEmail(request.resource.data.email);
       allow read, update, delete: if isAdmin();
     }
 
     // News
     match /news/{newsId} {
-      allow read: if true;
+      allow read, list: if true;
       allow write: if isAdmin();
+    }
+
+    // Resources
+    match /resources/{resourceId} {
+      allow read, list: if isAuthenticated();
+      allow write: if isTeacher();
     }
 
     // Progress Reports
     match /progress/{progressId} {
-      allow read: if isAuthenticated() && (isAdmin() || request.auth.uid == resource.data.studentId);
+      allow read: if isAuthenticated() && (isAdmin() || isTeacher() || request.auth.uid == resource.data.studentId);
+      allow write: if isTeacher();
+    }
+
+    // Students
+    match /students/{studentId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() || 
+        request.auth.uid == resource.data.parentId || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.studentId == studentId
+      );
+      allow write: if isAdmin();
+    }
+
+    // Results
+    match /results/{resultId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() || 
+        isTeacher() ||
+        request.auth.uid == get(/databases/$(database)/documents/students/$(resource.data.studentId)).data.parentId || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.studentId == resource.data.studentId
+      );
+      allow write: if isTeacher();
+    }
+
+    // Announcements
+    match /announcements/{announcementId} {
+      allow read, list: if isAuthenticated();
       allow write: if isAdmin();
     }
 
     // Users
     match /users/{userId} {
       allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Newsletter
+    match /newsletter/{entryId} {
+      allow create: if request.resource.data.keys().hasAll(['email']) &&
+                      isValidEmail(request.resource.data.email);
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Gallery
+    match /gallery/{imageId} {
+      allow read, list: if true;
+      allow write: if isAdmin();
+    }
+
+    // Drivers
+    match /drivers/{driverId} {
+      allow read, list: if true;
+      allow write: if isAdmin();
+    }
+
+    // Assignments
+    match /assignments/{assignmentId} {
+      allow read: if isAuthenticated();
+      allow write: if isTeacher();
+    }
+
+    // Attendance
+    match /attendance/{attendanceId} {
+      allow read: if isTeacher() || (isAuthenticated() && request.auth.uid == resource.data.studentId);
+      allow write: if isTeacher();
+    }
+
+    // Lesson Plans
+    match /lessonPlans/{planId} {
+      allow read, write: if isTeacher();
+    }
+
+    // Gradebook
+    match /gradebook/{entryId} {
+      allow read: if isTeacher() || (isAuthenticated() && request.auth.uid == resource.data.studentId);
+      allow write: if isTeacher();
+    }
+
+    // Communications
+    match /communications/{messageId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId);
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.senderId;
+      allow update: if isAuthenticated() && request.auth.uid == resource.data.receiverId;
     }
   }
 }

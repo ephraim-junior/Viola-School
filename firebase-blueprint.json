@@ -1,66 +1,143 @@
 {
   "entities": {
-    "Admission": {
-      "title": "Admission Application",
-      "description": "Student admission application details",
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores information about users (parents, teachers, admins).",
       "type": "object",
       "properties": {
-        "studentName": { "type": "string" },
-        "parentName": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
-        "phone": { "type": "string" },
-        "grade": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "reviewed", "accepted", "rejected"] },
+        "uid": { "type": "string", "description": "The unique identifier for the user." },
+        "name": { "type": "string", "description": "The full name of the user." },
+        "email": { "type": "string", "format": "email", "description": "The email address of the user." },
+        "role": { "type": "string", "enum": ["parent", "teacher", "admin"], "description": "The role of the user." },
+        "teacherId": { "type": "string", "description": "Staff number for teachers." },
+        "studentId": { "type": "string", "description": "Linked student ID for parents." },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "role"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Stores student records.",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string", "description": "Unique student identifier." },
+        "name": { "type": "string", "description": "Full name of the student." },
+        "grade": { "type": "string", "description": "Current grade level." },
+        "parentId": { "type": "string", "description": "UID of the parent user." },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["studentName", "parentName", "email", "phone", "grade"]
+      "required": ["studentId", "name", "grade"]
     },
-    "News": {
-      "title": "School News",
-      "description": "Latest news and updates from the school",
+    "NewsItem": {
+      "title": "News Item",
+      "description": "School news and updates.",
       "type": "object",
       "properties": {
         "title": { "type": "string" },
         "content": { "type": "string" },
+        "excerpt": { "type": "string" },
         "date": { "type": "string", "format": "date-time" },
-        "image": { "type": "string" }
+        "image": { "type": "string" },
+        "category": { "type": "string" }
       },
       "required": ["title", "content", "date"]
     },
-    "StudentProgress": {
-      "title": "Student Progress Report",
-      "description": "CBC-aligned progress reports for students",
+    "Assignment": {
+      "title": "Assignment",
+      "description": "Class assignments created by teachers.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "grade": { "type": "string" },
+        "subject": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "dueDate", "grade", "subject", "teacherId"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Daily attendance records.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "studentId": { "type": "string" },
+        "status": { "type": "string", "enum": ["Present", "Absent", "Late"] },
+        "teacherId": { "type": "string" },
+        "grade": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "studentId", "status", "teacherId"]
+    },
+    "LessonPlan": {
+      "title": "Lesson Plan",
+      "description": "Curriculum planning for teachers.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "objective": { "type": "string" },
+        "activities": { "type": "string" },
+        "assessment": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "grade": { "type": "string" },
+        "subject": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "objective", "date", "grade", "subject", "teacherId"]
+    },
+    "GradebookEntry": {
+      "title": "Gradebook Entry",
+      "description": "Individual student grades for assignments.",
       "type": "object",
       "properties": {
         "studentId": { "type": "string" },
-        "grade": { "type": "string" },
-        "term": { "type": "string" },
-        "competencies": {
-          "type": "object",
-          "properties": {
-            "literacy": { "type": "string" },
-            "numeracy": { "type": "string" },
-            "creativity": { "type": "string" },
-            "collaboration": { "type": "string" }
-          }
-        },
-        "teacherComments": { "type": "string" }
+        "assignmentId": { "type": "string" },
+        "score": { "type": "number" },
+        "teacherId": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["studentId", "grade", "term"]
+      "required": ["studentId", "assignmentId", "score", "teacherId"]
+    },
+    "Resource": {
+      "title": "Resource",
+      "description": "Educational materials.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "url": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "url"]
+    },
+    "Communication": {
+      "title": "Communication",
+      "description": "Messages between teachers and parents.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["senderId", "receiverId", "content", "timestamp"]
     }
   },
   "firestore": {
-    "/admissions/{admissionId}": {
-      "schema": "Admission",
-      "description": "Collection of admission applications"
-    },
-    "/news/{newsId}": {
-      "schema": "News",
-      "description": "Collection of school news articles"
-    },
-    "/progress/{progressId}": {
-      "schema": "StudentProgress",
-      "description": "Collection of student progress reports"
-    }
+    "/users/{userId}": { "schema": "UserProfile", "description": "User profiles." },
+    "/students/{studentId}": { "schema": "Student", "description": "Student records." },
+    "/news/{newsId}": { "schema": "NewsItem", "description": "School news." },
+    "/assignments/{assignmentId}": { "schema": "Assignment", "description": "Class assignments." },
+    "/attendance/{attendanceId}": { "schema": "Attendance", "description": "Daily attendance." },
+    "/lessonPlans/{planId}": { "schema": "LessonPlan", "description": "Teacher lesson plans." },
+    "/gradebook/{entryId}": { "schema": "GradebookEntry", "description": "Student grades." },
+    "/resources/{resourceId}": { "schema": "Resource", "description": "Educational resources." },
+    "/communications/{messageId}": { "schema": "Communication", "description": "Chat messages." }
   }
 }
